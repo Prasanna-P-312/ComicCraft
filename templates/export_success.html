@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ComicCraft — Export Successful!</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --yellow: #f5c518; --red: #e63946;
+      --shadow: 4px 4px 0 #000; --border: 2.5px solid #000; --radius: 10px;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg,
+          #0b132b 0%, #1c2951 25%, #2e4a7a 45%,
+          #3e6a9e 60%, #5fa8d3 75%, #a8dadc 88%, #f1faee 100%
+        );
+      background-attachment: fixed;
+      display: flex; flex-direction: column;
+    }
+    .navbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 32px; background:rgba(10,10,26,0.92); border-bottom:3px solid var(--yellow);
+      backdrop-filter:blur(8px);
+    }
+    .nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+    .brand-logo {
+      background:var(--yellow); color:#000; font-weight:900; font-size:18px;
+      padding:6px 14px; border-radius:6px; border:var(--border);
+      box-shadow:var(--shadow); transform:rotate(-3deg);
+    }
+    .brand-name { font-size:20px; font-weight:800; color:#fff; }
+    .brand-name span { color:var(--yellow); }
+
+    .page { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+
+    .card {
+      background:#fff; border:var(--border); border-radius:var(--radius);
+      box-shadow:12px 12px 0 #000; padding:48px 44px;
+      max-width:620px; width:100%; text-align:center;
+    }
+
+    .success-icon {
+      width:88px; height:88px;
+      background:#22c55e; border:var(--border); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:46px; color:#fff;
+      margin:0 auto 24px;
+      box-shadow:var(--shadow);
+    }
+
+    .card h1 { font-size:30px; font-weight:900; margin-bottom:12px; color:#1a1a2e; }
+    .card p { font-size:16px; color:#475569; line-height:1.65; margin-bottom:32px; }
+
+    .pdf-name {
+      display:inline-block;
+      background:#f1f5f9; border:var(--border); border-radius:6px;
+      font-family: monospace; font-size:14px; font-weight:700;
+      padding:6px 14px; color:#1e293b; margin-bottom:28px;
+    }
+
+    .actions { display:flex; flex-direction:column; gap:14px; }
+
+    .btn-primary {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:16px 32px; background:#1d3557; color:#fff;
+      font-weight:800; font-size:16px; border:var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow);
+      text-decoration:none; cursor:pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-primary:hover { background:#457b9d; transform:translate(-2px,-2px); box-shadow:6px 6px 0 #000; }
+
+    .btn-secondary {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:16px 32px; background:var(--yellow); color:#000;
+      font-weight:800; font-size:16px; border:var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow);
+      text-decoration:none; cursor:pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-secondary:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 #000; background:#ffd60a; }
+
+    .footer { background:rgba(10,10,26,0.85); color:#94a3b8; text-align:center;
+      padding:20px; font-size:13px; border-top:3px solid var(--yellow); }
+    .footer a { color:var(--yellow); text-decoration:none; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="brand-logo">CC</div>
+    <div class="brand-name">Comic<span>Craft</span></div>
+  </a>
+  <a href="/" style="color:#94a3b8; text-decoration:none; font-weight:600; font-size:14px; padding:8px 14px; border-radius:6px;">← Home</a>
+</nav>
+
+<div class="page">
+  <div class="card">
+    <div class="success-icon">✓</div>
+    <h1>Comic Exported Successfully!</h1>
+    <p>
+      Your AI-powered comic book has been compiled into a professionally formatted multi-page PDF, complete with a cover page, panel illustrations, character dialogues, captions, and narration.
+    </p>
+    <div class="pdf-name">{{ pdf_filename }}</div>
+    <div class="actions">
+      <a href="{{ download_url }}" download class="btn-primary">
+        📥 Click to Save / Open PDF
+      </a>
+      <a href="/" class="btn-secondary">
+        🎨 Go Create Another Comic
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>ComicCraft &copy; 2026 &nbsp;|&nbsp; Built with <a href="https://fastapi.tiangolo.com">FastAPI</a>, <a href="https://ai.google.dev">Google Gemini AI</a> &amp; Stable Diffusion</p>
+</footer>
+
+</body>
+</html>

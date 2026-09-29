@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComicCraft - AI Comic Story Creator</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow:   #f5c518;
+      --red:      #e63946;
+      --blue:     #1d3557;
+      --sky:      #457b9d;
+      --light:    #a8dadc;
+      --white:    #f1faee;
+      --dark:     #0a0a1a;
+      --shadow:   4px 4px 0 #000;
+      --border:   2.5px solid #000;
+      --radius:   10px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      background:
+        /* scenic sky gradient */
+        linear-gradient(180deg,
+          #0b132b 0%,
+          #1c2951 25%,
+          #2e4a7a 45%,
+          #3e6a9e 60%,
+          #5fa8d3 75%,
+          #a8dadc 88%,
+          #f1faee 100%
+        );
+      background-attachment: fixed;
+      color: #111;
+    }
+
+    /* ── Stars in background ──────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 8%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 23% 3%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 38% 12%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 52% 5%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 67% 9%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 81% 4%,  #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 18%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 22%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 72% 15%, #fff 0%, transparent 100%),
+        radial-gradient(2px 2px at 90% 20%, #ffe 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  30%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 58% 28%, #fff 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Nav Bar ──────────────────────────────────────── */
+    .navbar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(10, 10, 26, 0.92);
+      border-bottom: 3px solid #f5c518;
+      backdrop-filter: blur(8px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-logo {
+      background: var(--yellow);
+      color: #000;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      transform: rotate(-3deg);
+      letter-spacing: 1px;
+    }
+    .brand-name { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+    .brand-name span { color: var(--yellow); }
+    .nav-pill {
+      background: #22c55e;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: var(--border);
+      box-shadow: 2px 2px 0 #000;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Page Wrapper ─────────────────────────────────── */
+    .page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 48px 20px; }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 36px; }
+    .hero-tag {
+      display: inline-block;
+      background: var(--yellow);
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 5px 16px;
+      border-radius: 999px;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #fff;
+      text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
+      margin-bottom: 10px;
+    }
+    .hero h1 em { font-style: normal; color: var(--yellow); }
+    .hero p { font-size: 16px; color: #c8d8f0; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── Card ─────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: 8px 8px 0 #000;
+      padding: 36px 32px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .card-badge {
+      position: absolute;
+      top: -15px; left: 24px;
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 4px 16px;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+    }
+
+    /* ── Form ─────────────────────────────────────────── */
+    .form-group { margin-bottom: 22px; }
+    .form-label { display: block; font-weight: 700; font-size: 14px; color: #1a1a2e; margin-bottom: 7px; }
+    .form-label .req { color: var(--red); }
+    .form-control {
+      width: 100%; padding: 11px 14px;
+      font-family: inherit; font-size: 15px;
+      border: 2px solid #1a1a2e;
+      border-radius: var(--radius);
+      background: #f8fafc;
+      color: #1a1a2e;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--sky);
+      box-shadow: 3px 3px 0 var(--sky);
+      background: #fff;
+    }
+    textarea.form-control { min-height: 90px; resize: vertical; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip {
+      background: #e8edf4; border: 1.5px solid #000;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .chip:hover { background: var(--yellow); transform: translateY(-1px); }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    @media (max-width: 640px) {
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 30px; }
+    }
+
+    /* ── Submit Button ────────────────────────────────── */
+    .btn-main {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 16px;
+      background: var(--yellow);
+      color: #000;
+      font-size: 18px; font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      letter-spacing: 0.5px;
+    }
+    .btn-main:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #000; background: #ffd60a; }
+    .btn-main:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
+
+    /* ── Loading overlay ──────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10, 10, 26, 0.88);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      justify-content: center; align-items: center;
+    }
+    .loader-box {
+      background: #fff;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: 12px 12px 0 #000;
+      padding: 44px 40px;
+      max-width: 420px; width: 90%;
+      text-align: center;
+    }
+    .spinner {
+      width: 64px; height: 64px;
+      border: 7px solid #e2e8f0;
+      border-top-color: var(--yellow);
+      border-right-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 22px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-box h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .loader-box p { font-size: 13px; color: #64748b; margin-top: 12px; }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      background: rgba(10, 10, 26, 0.85);
+      border-top: 3px solid #f5c518;
+      color: #94a3b8;
+      font-size: 13px;
+      position: relative; z-index: 1;
+    }
+    .footer a { color: var(--yellow); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────── -->
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="brand-logo">CC</div>
+    <div class="brand-name">Comic<span>Craft</span></div>
+  </a>
+  <div style="display:flex; gap:14px; align-items:center;">
+    <span class="nav-pill">Gemini AI + Stable Diffusion</span>
+    <a href="/docs" target="_blank" style="color:#94a3b8; text-decoration:none; font-size:14px; font-weight:600;">API Docs</a>
+  </div>
+</nav>
+
+<!-- ── Page Content ────────────────────────────────────── -->
+<div class="page">
+
+  <!-- Hero Banner -->
+  <div class="hero">
+    <div class="hero-tag">⚡ Powered by Gemini 1.5 Flash &amp; Pro + AI Image Generation</div>
+    <h1>Create Your Own<br><em>AI Comic Book</em></h1>
+    <p>Transform any story idea into vivid multi-panel comic strips — complete with AI illustrations, character dialogues, narration, and a downloadable PDF comic book.</p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-badge">🎨 Creative Studio</div>
+
+    <form id="comicForm" action="/generate" method="POST" onsubmit="showLoading()">
+
+      <!-- Story Prompt -->
+      <div class="form-group">
+        <label class="form-label" for="story_prompt">Story Prompt / Premise <span class="req">*</span></label>
+        <textarea class="form-control" id="story_prompt" name="story_prompt" required
+          placeholder="Describe your comic story idea…">A brave fox exploring an enchanted forest to find the legendary Star Stone.</textarea>
+        <div class="chips">
+          <span class="chip" onclick="setPrompt('A brave fox exploring an enchanted forest to find the legendary Star Stone.')">🦊 Fox in Enchanted Forest</span>
+          <span class="chip" onclick="setPrompt('A futuristic detective investigating a neon-lit cyberpunk alley mystery in Neo-Tokyo.')">🕵️ Cyber Detective</span>
+          <span class="chip" onclick="setPrompt('A young sorceress accidentally opens a magical portal inside a forbidden ancient library.')">✨ Forbidden Library</span>
+          <span class="chip" onclick="setPrompt('A funny space robot trying to make pancakes in zero gravity aboard a space station.')">🤖 Space Robot Chef</span>
+          <span class="chip" onclick="setPrompt('A dragon and a knight become unexpected allies to defeat a shadow monster.')">🐉 Dragon &amp; Knight</span>
+        </div>
+      </div>
+
+      <!-- Character + Setting + Tone -->
+      <div class="grid-3">
+        <div class="form-group">
+          <label class="form-label" for="character_name">Main Character Name</label>
+          <input class="form-control" type="text" id="character_name" name="character_name" value="Rusty" placeholder="e.g. Rusty, Zara, Kael">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setting">Setting / Location</label>
+          <select class="form-control" id="setting" name="setting">
+            <option value="Enchanted Forest" selected>Enchanted Forest</option>
+            <option value="Cyberpunk City">Cyberpunk City</option>
+            <option value="Space Station">Deep Space Station</option>
+            <option value="Ancient Ruins">Ancient Ruins</option>
+            <option value="High School">High School</option>
+            <option value="Desert Oasis">Desert Oasis</option>
+            <option value="Underwater Kingdom">Underwater Kingdom</option>
+            <option value="Volcano Island">Volcano Island</option>
+            <option value="Frozen Tundra">Frozen Tundra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tone">Story Tone</label>
+          <select class="form-control" id="tone" name="tone">
+            <option value="Dramatic" selected>Dramatic &amp; Epic</option>
+            <option value="Funny">Funny &amp; Lighthearted</option>
+            <option value="Poetic">Poetic &amp; Mysterious</option>
+            <option value="Action-Packed">Action-Packed</option>
+            <option value="Whimsical">Whimsical &amp; Magical</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Art Style -->
+      <div class="form-group">
+        <label class="form-label" for="art_style">Art Style</label>
+        <select class="form-control" id="art_style" name="art_style">
+          <option value="Comic Book" selected>Classic Comic Book (Bold Inking &amp; Halftones)</option>
+          <option value="Anime">Anime / Manga Style</option>
+          <option value="Pixel Art">Retro Pixel Art</option>
+          <option value="Realistic">Cinematic Realistic</option>
+        </select>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-main">
+        🚀 Generate AI Comic Strip
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="overlay" id="overlay">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <h3>Crafting Your Comic…</h3>
+    <p id="loaderStep">Calling Gemini Flash to structure 5 story panels…</p>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>ComicCraft &copy; 2026 &nbsp;|&nbsp; Built with <a href="https://fastapi.tiangolo.com" target="_blank">FastAPI</a>, <a href="https://ai.google.dev" target="_blank">Google Gemini AI</a> &amp; <a href="https://huggingface.co" target="_blank">Stable Diffusion</a></p>
+</footer>
+
+<script>
+function setPrompt(t){ document.getElementById('story_prompt').value = t; }
+
+function showLoading(){
+  document.getElementById('overlay').style.display = 'flex';
+  const steps = [
+    'Calling Gemini Flash to structure 5 story panels…',
+    'Building panel outlines and image prompts…',
+    'Calling Gemini Pro for dialogues and narration…',
+    'Generating comic illustrations for each panel…',
+    'Assembling layout and compiling PDF comic book…'
+  ];
+  let i = 0;
+  setInterval(()=>{ document.getElementById('loaderStep').textContent = steps[++i % steps.length]; }, 2800);
+}
+</script>
+</body>
+</html>

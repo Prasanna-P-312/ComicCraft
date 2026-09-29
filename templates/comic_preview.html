@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ComicCraft — Comic Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --yellow: #f5c518; --red: #e63946; --blue: #1d3557;
+      --sky: #457b9d; --white: #f1faee; --dark: #0a0a1a;
+      --shadow: 4px 4px 0 #000; --border: 2.5px solid #000; --radius: 10px;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: #111;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    /* Nav */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px; background: #0a0a1a; border-bottom: 3px solid #f5c518;
+    }
+    .nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+    .brand-logo {
+      background: var(--yellow); color:#000; font-weight:900; font-size:18px;
+      padding:6px 14px; border-radius:6px; border:var(--border);
+      box-shadow:var(--shadow); transform:rotate(-3deg);
+    }
+    .brand-name { font-size:20px; font-weight:800; color:#fff; }
+    .brand-name span { color:var(--yellow); }
+    .nav-actions { display:flex; gap:12px; align-items:center; }
+    .nav-link { color:#94a3b8; text-decoration:none; font-weight:600; font-size:14px;
+      padding:7px 14px; border-radius:6px; }
+    .nav-link:hover { color:#fff; background:#1e293b; }
+
+    /* Container */
+    .container { max-width:1100px; margin:0 auto; padding:32px 20px; flex:1; }
+
+    /* Story header */
+    .story-header {
+      background:#fff; border:var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:22px 28px; margin-bottom:28px;
+      display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;
+    }
+    .story-header h2 { font-size:20px; font-weight:900; color:#1a1a2e; margin-bottom:8px; }
+    .badges { display:flex; flex-wrap:wrap; gap:8px; }
+    .badge {
+      font-size:12px; font-weight:700; padding:4px 12px; border-radius:6px;
+      border: 1.5px solid #000;
+    }
+    .b-char   { background:#fef08a; }
+    .b-set    { background:#bfdbfe; }
+    .b-tone   { background:#fbcfe8; }
+    .b-style  { background:#bbf7d0; }
+
+    /* Download button */
+    .btn-download {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 24px; background:#1d3557; color:#fff;
+      font-weight:800; font-size:15px; border:var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow);
+      text-decoration:none; cursor:pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-download:hover { background:#457b9d; transform:translate(-2px,-2px); box-shadow:6px 6px 0 #000; }
+
+    .btn-new {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 24px; background:#f5c518; color:#000;
+      font-weight:800; font-size:15px; border:var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow);
+      text-decoration:none; cursor:pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-new:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 #000; }
+
+    /* Panels */
+    .panels { display:flex; flex-direction:column; gap:28px; margin-bottom:40px; }
+
+    .panel-box {
+      background:#fff; border:var(--border); border-radius:var(--radius);
+      box-shadow: 6px 6px 0 #000; padding:22px;
+      display:grid; grid-template-columns: 380px 1fr; gap:22px; align-items:start;
+    }
+    @media (max-width:860px) { .panel-box { grid-template-columns:1fr; } }
+
+    /* Image wrapper */
+    .panel-img-wrap {
+      position:relative; border:3px solid #000; border-radius:8px;
+      overflow:hidden; box-shadow:4px 4px 0 #000; background:#1a1a2e;
+      flex-shrink:0;
+    }
+    .panel-img-wrap img {
+      width:100%; height:370px; object-fit:cover; display:block;
+      transition:transform 0.3s;
+    }
+    .panel-img-wrap:hover img { transform:scale(1.03); }
+
+    .panel-label {
+      position:absolute; top:10px; left:10px;
+      background:var(--yellow); border:2px solid #000; border-radius:4px;
+      font-weight:900; font-size:12px; padding:3px 10px;
+      box-shadow:2px 2px 0 #000;
+    }
+
+    /* Panel text content */
+    .panel-content { display:flex; flex-direction:column; gap:12px; }
+
+    .panel-title {
+      font-size:20px; font-weight:900; color:#1a1a2e;
+      border-bottom:2px dashed #cbd5e1; padding-bottom:8px;
+    }
+
+    .scene-desc { font-style:italic; font-size:14px; color:#475569; line-height:1.5; }
+
+    .caption-box {
+      background:#fef3c7; border-left:4px solid var(--yellow);
+      border:1.5px solid #000; padding:9px 13px; border-radius:6px;
+      font-size:13px; font-weight:700; color:#78350f;
+    }
+
+    .narration-box { background:#f8fafc; border:2px solid #000; padding:11px 14px; border-radius:8px; }
+    .narration-box .label { font-size:11px; font-weight:700; text-transform:uppercase;
+      color:#64748b; margin-bottom:4px; letter-spacing:0.5px; }
+    .narration-box p { font-size:14px; color:#1e293b; line-height:1.5; }
+
+    .speech-bubble {
+      background:#ecfdf5; border:2px solid #000; border-radius:12px;
+      padding:11px 14px; box-shadow:3px 3px 0 #000;
+    }
+    .speech-bubble .label { font-size:11px; font-weight:700; text-transform:uppercase;
+      color:#059669; margin-bottom:4px; letter-spacing:0.5px; }
+    .speech-bubble p { font-size:15px; font-weight:600; color:#064e3b; font-style:italic; }
+
+    .art-cue { font-size:11px; color:#94a3b8; background:#f1f5f9;
+      padding:5px 9px; border-radius:4px; word-break:break-word; }
+
+    /* Action bar */
+    .action-bar {
+      background:#fff; border:var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:18px 22px;
+      display:flex; gap:14px; justify-content:center;
+      position:sticky; bottom:20px; z-index:10;
+    }
+
+    /* Footer */
+    .footer { background:#0a0a1a; color:#94a3b8; text-align:center;
+      padding:22px; font-size:13px; border-top:3px solid #f5c518; margin-top:auto; }
+    .footer a { color:#f5c518; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="brand-logo">CC</div>
+    <div class="brand-name">Comic<span>Craft</span></div>
+  </a>
+  <div class="nav-actions">
+    <a href="/" class="nav-link">← New Comic</a>
+    <a href="{{ export_success_url }}" class="btn-download" style="font-size:13px; padding:8px 18px;">📥 Download PDF</a>
+  </div>
+</nav>
+
+<!-- Container -->
+<div class="container">
+
+  <!-- Story Meta Header -->
+  <div class="story-header">
+    <div>
+      <h2>"{{ story_prompt }}"</h2>
+      <div class="badges">
+        <span class="badge b-char">Hero: {{ character_name }}</span>
+        <span class="badge b-set">Setting: {{ setting }}</span>
+        <span class="badge b-tone">Tone: {{ tone }}</span>
+        <span class="badge b-style">Style: {{ art_style }}</span>
+      </div>
+    </div>
+    <a href="{{ export_success_url }}" class="btn-download">📥 Download Your Comic as PDF</a>
+  </div>
+
+  <!-- Panel-by-Panel Preview -->
+  <div class="panels">
+    {% for panel in layout %}
+    <div class="panel-box">
+      <!-- Image -->
+      <div class="panel-img-wrap">
+        <span class="panel-label">PANEL {{ panel.panel_number }}</span>
+        <img src="{{ panel.image_url }}" alt="{{ panel.title }}" loading="lazy" />
+      </div>
+
+      <!-- Text Content -->
+      <div class="panel-content">
+        <h3 class="panel-title">{{ panel.panel_number }}. {{ panel.title }}</h3>
+
+        <p class="scene-desc"><em>{{ panel.scene_description }}</em></p>
+
+        {% if panel.caption %}
+        <div class="caption-box">&#128196; {{ panel.caption }}</div>
+        {% endif %}
+
+        <div class="narration-box">
+          <div class="label">Narration</div>
+          <p>{{ panel.narration }}</p>
+        </div>
+
+        {% if panel.dialogue %}
+        <div class="speech-bubble">
+          <div class="label">Character Dialogue</div>
+          <p>{{ panel.dialogue }}</p>
+        </div>
+        {% endif %}
+
+        <div class="art-cue"><strong>Art Cue:</strong> {{ panel.image_prompt }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Sticky bottom action bar -->
+  <div class="action-bar">
+    <a href="/" class="btn-new">✏️ Create Another Comic</a>
+    <a href="{{ export_success_url }}" class="btn-download">📥 Download Your Comic as PDF</a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>ComicCraft &copy; 2026 &nbsp;|&nbsp; Built with <a href="https://fastapi.tiangolo.com">FastAPI</a>, <a href="https://ai.google.dev">Google Gemini AI</a> &amp; Stable Diffusion</p>
+</footer>
+
+</body>
+</html>
